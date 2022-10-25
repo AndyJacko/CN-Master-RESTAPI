@@ -9,7 +9,7 @@ const {
   loginUser,
 } = require("../controllers/user");
 
-const { hashPass } = require("../middleware/hash");
+const { hashPass, tokenCheck, comparePass } = require("../middleware/hash");
 
 const userRouter = Router();
 
@@ -18,6 +18,7 @@ userRouter.get("/readUsers", readUsers);
 userRouter.get("/readUser/:id", readUser);
 userRouter.put("/updateUser", hashPass, updateUser);
 userRouter.delete("/deleteUser/:id", deleteUser);
-userRouter.post("/login", loginUser);
+userRouter.post("/login", comparePass, loginUser);
+userRouter.get("/login", tokenCheck, loginUser);
 
 module.exports = userRouter;

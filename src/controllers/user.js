@@ -1,9 +1,17 @@
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
 
 exports.createUser = async (req, res) => {
   try {
     const newUser = await User.create(req.body);
-    res.status(201).send({ message: "User Created", user: newUser });
+    const token = jwt.sign(
+      { _id: createdUser.id, email: createdUser.email },
+      process.env.JWT_KEY,
+      { expiresIn: "1h" }
+    );
+    res
+      .status(201)
+      .send({ message: "User Created", user: newUser, token: token });
   } catch (err) {
     res.status(500).send({ error: err.message });
   }
@@ -90,11 +98,24 @@ exports.deleteUser = async (req, res) => {
 
 exports.loginUser = async (req, res) => {
   try {
-    const user = await User.findByCredentials(
-      req.body.username,
-      req.body.password
+    // const user = await User.findByCredentials(
+    //   req.body.username,
+    //   req.body.password
+    // );
+
+    const token = jwt.sign(
+      { _id: req.user._id, email: req.user.email },
+      process.env.JWT_KEY,
+      { expiresIn: "1h" }
     );
-    res.status(200).send({ message: `User Logged In`, user: user.username });
+
+    res
+      .status(200)
+      .send({
+        message: `User Logged In`,
+        user: req.user.username,
+        token: token,
+      });
   } catch (err) {
     res.status(500).send({ error: err.message });
   }
