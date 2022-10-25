@@ -32,19 +32,33 @@ exports.readUsers = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const updatedUser = await User.updateOne({
-      username: req.body.username,
-      email: req.body.email,
-      password: req.body.password,
-    });
-
-    if (updatedUser.modifiedCount === 1) {
+    if (req.body.id.length === 24) {
       const selectedUser = await User.find({ _id: req.body.id });
-      res.status(200).send({ message: "User Updated", user: selectedUser });
+
+      if (selectedUser[0]) {
+        const updatedUser = await User.updateOne(
+          { _id: req.body.id },
+          {
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
+          }
+        );
+
+        if (updatedUser.modifiedCount === 1) {
+          res.status(200).send({ message: "User Updated", user: selectedUser });
+        } else {
+          res.status(200).send({
+            message: `User With ID: ${req.body.id} Already Up To Date`,
+          });
+        }
+      } else {
+        res
+          .status(404)
+          .send({ message: `No User Found With ID: ${req.body.id}` });
+      }
     } else {
-      res
-        .status(200)
-        .send({ message: `User With ID: ${req.body.id} Already Up To Date` });
+      res.status(200).send({ message: `Invalid ID format` });
     }
   } catch (err) {
     console.log(err);
@@ -54,13 +68,24 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   try {
-    const selectedUser = await User.find({ _id: req.params.id });
-    const deletedUser = await User.deleteOne({ _id: req.params.id });
+    if (req.params.id.length === 24) {
+      const selectedUser = await User.find({ _id: req.params.id });
 
-    if (deletedUser.deletedCount === 1) {
-      res.status(200).send({ message: "User Deleted", user: selectedUser });
+      if (selectedUser[0]) {
+        const deletedUser = await User.deleteOne({ _id: req.params.id });
+
+        if (deletedUser.deletedCount === 1) {
+          res.status(200).send({ message: "User Deleted", user: selectedUser });
+        } else {
+          res.status(404).send({ message: "User Not Deleted" });
+        }
+      } else {
+        res
+          .status(404)
+          .send({ message: `No User Found With ID: ${req.body.id}` });
+      }
     } else {
-      res.status(404).send({ message: "User Not Found" });
+      res.status(200).send({ message: `Invalid ID format` });
     }
   } catch (err) {
     console.log(err);
