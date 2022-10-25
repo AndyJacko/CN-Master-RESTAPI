@@ -5,7 +5,6 @@ exports.createUser = async (req, res) => {
     const newUser = await User.create(req.body);
     res.status(201).send({ message: "User Created", user: newUser });
   } catch (err) {
-    console.log(err);
     res.status(500).send({ error: err.message });
   }
 };
@@ -15,7 +14,6 @@ exports.readUser = async (req, res) => {
     const readUser = await User.find({ _id: req.params.id });
     res.status(200).send({ user: readUser });
   } catch (err) {
-    console.log(err);
     res.status(500).send({ error: err.message });
   }
 };
@@ -25,7 +23,6 @@ exports.readUsers = async (req, res) => {
     const readUsers = await User.find({});
     res.status(200).send({ users: readUsers });
   } catch (err) {
-    console.log(err);
     res.status(500).send({ error: err.message });
   }
 };
@@ -61,7 +58,6 @@ exports.updateUser = async (req, res) => {
       res.status(200).send({ message: `Invalid ID format` });
     }
   } catch (err) {
-    console.log(err);
     res.status(500).send({ error: err.message });
   }
 };
@@ -88,7 +84,18 @@ exports.deleteUser = async (req, res) => {
       res.status(200).send({ message: `Invalid ID format` });
     }
   } catch (err) {
-    console.log(err);
+    res.status(500).send({ error: err.message });
+  }
+};
+
+exports.loginUser = async (req, res) => {
+  try {
+    const user = await User.findByCredentials(
+      req.body.username,
+      req.body.password
+    );
+    res.status(200).send({ message: `User Logged In`, user: user.username });
+  } catch (err) {
     res.status(500).send({ error: err.message });
   }
 };
